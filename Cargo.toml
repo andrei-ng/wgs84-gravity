@@ -1,0 +1,18 @@
+[package]
+authors = ["Andrei Gherghescu <andrei-ng@protonmail.com>"]
+description = "WGS84 Gravity Model"
+edition = "2021"
+name = "wgs84-gravity"
+version = "0.1.0"
+license = "MIT"
+repository = "https://github.com/andrei-ng/wgs84-gravity"
+homepage = "https://github.com/andrei-ng/wgs84-gravity"
+keywords = ["wgs84", "gravity", "navigation"]
+readme = "README.md"
+categories = ["science", "math", "physics", "navigation", "gnss"]
+documentation = "https://docs.rs/wgs84-gravity"
+
+[dependencies]
+
+[dev-dependencies]
+approx = "0.5"
