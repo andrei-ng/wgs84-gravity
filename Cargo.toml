@@ -9,7 +9,7 @@ repository = "https://github.com/andrei-ng/wgs84-gravity"
 homepage = "https://github.com/andrei-ng/wgs84-gravity"
 keywords = ["wgs84", "gravity", "navigation"]
 readme = "README.md"
-categories = ["science", "math", "physics", "navigation", "gnss"]
+categories = ["science", "science::geo", "science::robotics"]
 documentation = "https://docs.rs/wgs84-gravity"
 
 [dependencies]
