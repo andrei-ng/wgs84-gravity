@@ -47,6 +47,6 @@ jobs:
       - name: Check semver
         uses: obi1kenobi/cargo-semver-checks-action@v2
         with:
-          package: plotly
+          package: wgs84-gravity
           rust-toolchain: stable
           release-type: minor
