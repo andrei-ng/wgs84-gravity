@@ -121,18 +121,6 @@ impl WGS84 {
         ]
     }
 
-    /// Earth rotation [rad/s] evaluated in navigation frame (NED frame)
-    /// Reference: [AIDED Navigation - GPS With High Rate Sensors, Jay Farrell](https://books.google.nl/books?id=yNujEvIMszYC&lpg=PP1&pg=PR3#v=onepage&q&f=false)
-    /// Implements W <sup>n</sup> <sub>ie</sub> term in formula 12.43 on page 390 - 391
-    #[rustfmt::skip]
-    pub fn earth_rotation_ned(lat: f64) -> [f64; 3] {
-        [
-            Self::W_IE * lat.cos(),
-            0.0,
-            -Self::W_IE * lat.sin()
-        ]
-    }
-
     /// Useful quantity sin(lat)^2 used throughout WGS84 formulas
     fn sin_lat_sq(lat: f64) -> f64 {
         let sin_lat = f64::sin(lat);
@@ -463,14 +451,6 @@ mod tests {
                 c.tol
             );
         }
-    }
-
-    #[test]
-    fn earth_rotation_ned_norm() {
-        let lat = 52.0;
-        let earth_rotation = WGS84::earth_rotation_ned(lat).to_vec();
-        let rotation_norm = (earth_rotation.iter().map(|x| x * x).sum::<f64>()).sqrt();
-        assert_relative_eq!(rotation_norm, WGS84::W_IE);
     }
 
     #[test]

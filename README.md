@@ -1,6 +1,6 @@
 # wgs84-gravity
 
-WGS84 gravity model constants and formulas (radii, normal gravity, Earth rotation).
+WGS84 gravity model constants and formulas for Earth radii and normal gravity.
 
 All data inputs and outputs are in SI units.
 
@@ -34,7 +34,6 @@ let g_ned = WGS84::gravity_ned(lat, alt); // north, east, down [m/s^2]
 
 let r_m = WGS84::radius_meridian(lat);
 let r_n = WGS84::radius_normal(lat);
-let w_ie_ned = WGS84::earth_rotation_ned(lat);
 ```
 
 Docs: [docs.rs/wgs84-gravity](https://docs.rs/wgs84-gravity) 
