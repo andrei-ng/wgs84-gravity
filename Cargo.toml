@@ -1,18 +1,22 @@
-[package]
+[workspace]
+members = ["wgs84"]
+
+exclude = ["target/*"]
+
+resolver = "2"
+
+default-members = ["wgs84"]
+
+[workspace.package]
+version = "0.1.0"
 authors = ["Andrei Gherghescu <andrei-ng@protonmail.com>"]
 description = "Strapdown Inertial Navigation System library"
 edition = "2021"
 name = "strapdown-ins"
-version = "0.1.0"
 license = "MIT"
 repository = "https://github.com/andrei-ng/strapdown-ins"
 homepage = "https://github.com/andrei-ng/strapdown-ins"
+documentation = "https://docs.rs/strapdown-ins"
 keywords = ["navigation", "ins", "inertial"]
 readme = "README.md"
-categories = ["science", "science::geo", "science::robotics"]
-documentation = "https://docs.rs/strapdown-ins"
-
-[dependencies]
-
-[dev-dependencies]
-approx = "0.5"
+categories = ["algorithms", "science", "science::geo", "science::robotics"]
