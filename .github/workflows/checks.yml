@@ -47,6 +47,6 @@ jobs:
       - name: Check semver
         uses: obi1kenobi/cargo-semver-checks-action@v2
         with:
-          package: wgs84-gravity
+          package: strapdown-ins
           rust-toolchain: stable
           release-type: minor

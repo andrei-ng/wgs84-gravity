@@ -1,0 +1,17 @@
+[package]
+name = "tiny-wgs84"
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+description.workspace = true
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "README.md"
+
+[dependencies]
+
+[dev-dependencies]
+approx = "0.5"

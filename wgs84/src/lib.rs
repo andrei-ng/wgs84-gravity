@@ -18,7 +18,7 @@ impl WGS84 {
 
     /// First eccentricity squared, which can be computed in two ways (implementation uses the first)
     /// ```
-    /// use wgs84_gravity::WGS84;
+    /// use tiny_wgs84::WGS84;
     /// let e1_squared = (2.0 - WGS84::F)*WGS84::F;
     /// // or alternative calculation
     /// let e1_squared = 1.0 - f64::powf(WGS84::B/WGS84::A, 2.0);
@@ -30,7 +30,7 @@ impl WGS84 {
 
     /// Second eccentricity squared, which can be computed in two ways (implementation uses the first)
     /// ```
-    /// use wgs84_gravity::WGS84;
+    /// use tiny_wgs84::WGS84;
     /// let e2_squared = WGS84::E1_SQ / (1.0 - WGS84::E1_SQ);
     /// // or alternative calculation
     /// let e2_squared = WGS84::F  * (2.0 - WGS84::F) / f64::powf(1.0 - WGS84::F, 2.0);
