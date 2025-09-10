@@ -1,16 +1,16 @@
 [package]
 authors = ["Andrei Gherghescu <andrei-ng@protonmail.com>"]
-description = "WGS84 Gravity Model"
+description = "Strapdown Inertial Navigation System library"
 edition = "2021"
-name = "wgs84-gravity"
-version = "0.1.1"
+name = "strapdown-ins"
+version = "0.1.0"
 license = "MIT"
-repository = "https://github.com/andrei-ng/wgs84-gravity"
-homepage = "https://github.com/andrei-ng/wgs84-gravity"
-keywords = ["wgs84", "gravity", "navigation"]
+repository = "https://github.com/andrei-ng/strapdown-ins"
+homepage = "https://github.com/andrei-ng/strapdown-ins"
+keywords = ["navigation", "ins", "inertial"]
 readme = "README.md"
 categories = ["science", "science::geo", "science::robotics"]
-documentation = "https://docs.rs/wgs84-gravity"
+documentation = "https://docs.rs/strapdown-ins"
 
 [dependencies]
 
