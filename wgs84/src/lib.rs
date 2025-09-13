@@ -1,4 +1,5 @@
-/// Gravity Model using the WGS84 reference ellipsoid
+#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/README.md"))]
+
 pub struct WGS84;
 
 impl WGS84 {
@@ -54,20 +55,146 @@ impl WGS84 {
     /// North Gravity component scaling factor
     /// Reference:[Principles of GNSS, Inertial, and Multisensor Integrated Navigation Systems (GNSS Technology and Applications) ](https://books.google.nl/books?id=t94fAgAAQBAJ&printsec=copyrigh) - formula (2.140)
     const G_NORTH_SCALING: f64 = -8.08 * 1e-9;
+}
 
+#[cfg(not(feature = "units"))]
+impl WGS84 {
+    /// Meridian radius of the Earth R<sub>M</sub> \[m\]
+    ///
+    /// Latitude input must be in radians
+    ///
+    /// Reference: [AIDED Navigation - GPS With High Rate Sensors, Jay Farrell](https://books.google.nl/books?id=yNujEvIMszYC&lpg=PP1&pg=PR3#v=onepage&q&f=false) - formula (2.6)  
+    pub fn radius_meridian(lat_rad: f64) -> f64 {
+        internal::radius_meridian(lat_rad)
+    }
+
+    /// Normal radius of the Earth R<sub>N</sub> \[m\]
+    ///
+    /// Reference: [AIDED Navigation - GPS With High Rate Sensors, Jay Farrell](https://books.google.nl/books?id=yNujEvIMszYC&lpg=PP1&pg=PR3#v=onepage&q&f=false) - formula (2.7)
+    pub fn radius_normal(lat_rad: f64) -> f64 {
+        internal::radius_normal(lat_rad)
+    }
+
+    /// Estimation of Normal Gravity component (down component) [m/s<sup>2</sup>] based on International Gravity Formula including altitude/height dependence
+    ///
+    /// Based on the International Gravity Formula [Walter D. Lambert](https://earth.geology.yale.edu/~ajs/1945A/360.pdf)
+    ///
+    /// Truncated Taylor series of the original formulation is used as described [here](https://ahrs.readthedocs.io/en/latest/wgs84.html#ahrs.utils.wgs84.international_gravity)
+    /// since for the case of the International Ellipsoid, the third-order terms are negligible.
+    pub fn gravity_down(lat_rad: f64, alt_m: f64) -> f64 {
+        internal::gravity_down(lat_rad, alt_m)
+    }
+
+    /// Same as `gravity_down`
+    ///
+    /// This is a convenience function to match the naming convention of the AHRS Python package
+    pub fn gravity_normal(lat_rad: f64, alt_m: f64) -> f64 {
+        internal::gravity_down(lat_rad, alt_m)
+    }
+
+    /// Estimation of Normal Gravity component (down component) [m/s<sup>2</sup>] at the surface of the reference ellipsoid based on the Somigliana equation
+    ///
+    /// Reference: [Theoretical_gravity#Somigliana_equation](https://en.wikipedia.org/wiki/Theoretical_gravity#Somigliana_equation)
+    pub fn gravity_surface(lat_rad: f64) -> f64 {
+        internal::gravity_surface(lat_rad)
+    }
+
+    /// Estimation of North Gravity component [m/s<sup>2</sup>]
+    ///
+    /// Reference: [Principles of GNSS, Inertial, and Multisensor Integrated Navigation Systems (GNSS Technology and Applications) ](https://books.google.nl/books?id=t94fAgAAQBAJ&printsec=copyrigh) - formula (2.139) and (2.140)
+    pub fn gravity_north(lat_rad: f64, alt_m: f64) -> f64 {
+        internal::gravity_north(lat_rad, alt_m)
+    }
+
+    /// Gravity vector in NED representation [m/s<sup>2</sup>] at provided latitude
+    pub fn gravity_ned(lat_rad: f64, alt_m: f64) -> [f64; 3] {
+        internal::gravity_ned(lat_rad, alt_m)
+    }
+}
+
+#[cfg(feature = "units")]
+mod units {
+    use super::internal;
+    use super::WGS84;
+    use uom::si::f64::{Acceleration, Angle, Length};
+    use uom::si::{acceleration::meter_per_second_squared, angle::radian, length::meter};
+
+    impl WGS84 {
+        /// Meridian radius of the Earth R<sub>M</sub>
+        ///
+        /// Reference: [AIDED Navigation - GPS With High Rate Sensors, Jay Farrell](https://books.google.nl/books?id=yNujEvIMszYC&lpg=PP1&pg=PR3#v=onepage&q&f=false) - formula (2.6)  
+        pub fn radius_meridian(lat: Angle) -> Length {
+            Length::new::<meter>(internal::radius_meridian(lat.get::<radian>()))
+        }
+
+        /// Normal radius of the Earth R<sub>N</sub>
+        ///
+        /// Reference: [AIDED Navigation - GPS With High Rate Sensors, Jay Farrell](https://books.google.nl/books?id=yNujEvIMszYC&lpg=PP1&pg=PR3#v=onepage&q&f=false) - formula (2.7)
+        pub fn radius_normal(lat: Angle) -> Length {
+            Length::new::<meter>(internal::radius_normal(lat.get::<radian>()))
+        }
+
+        /// Estimation of Normal Gravity component (down component) based on International Gravity Formula including altitude/height dependence
+        ///
+        /// Based on the International Gravity Formula [Walter D. Lambert](https://earth.geology.yale.edu/~ajs/1945A/360.pdf)
+        ///
+        /// Truncated Taylor series of the original formulation is used as described [here](https://ahrs.readthedocs.io/en/latest/wgs84.html#ahrs.utils.wgs84.international_gravity)
+        /// since for the case of the International Ellipsoid, the third-order terms are negligible.
+        pub fn gravity_down(lat: Angle, alt: Length) -> Acceleration {
+            let ms2 = internal::gravity_down(lat.get::<radian>(), alt.get::<meter>());
+            Acceleration::new::<meter_per_second_squared>(ms2)
+        }
+
+        /// Same as `WGS84::gravity_down`
+        ///
+        /// This is a convenience function to match the naming convention of the AHRS Python package
+        pub fn gravity_normal(lat: Angle, alt: Length) -> Acceleration {
+            let g = internal::gravity_down(lat.get::<radian>(), alt.get::<meter>());
+            Acceleration::new::<meter_per_second_squared>(g)
+        }
+
+        /// Estimation of Normal Gravity component (down component) at the surface of the reference ellipsoid based on the Somigliana equation
+        ///
+        /// Reference: [Theoretical_gravity#Somigliana_equation](https://en.wikipedia.org/wiki/Theoretical_gravity#Somigliana_equation)
+        pub fn gravity_surface(lat: Angle) -> Acceleration {
+            let g = internal::gravity_surface(lat.get::<radian>());
+            Acceleration::new::<meter_per_second_squared>(g)
+        }
+
+        /// Estimation of North Gravity component
+        ///
+        /// Reference: [Principles of GNSS, Inertial, and Multisensor Integrated Navigation Systems (GNSS Technology and Applications) ](https://books.google.nl/books?id=t94fAgAAQBAJ&printsec=copyrigh) - formula (2.139) and (2.140)
+        pub fn gravity_north(lat: Angle, alt: Length) -> Acceleration {
+            let g = internal::gravity_north(lat.get::<radian>(), alt.get::<meter>());
+            Acceleration::new::<meter_per_second_squared>(g)
+        }
+
+        /// Gravity vector in NED representation at provided latitude
+        pub fn gravity_ned(lat: Angle, alt: Length) -> [Acceleration; 3] {
+            [
+                WGS84::gravity_north(lat, alt),
+                Acceleration::new::<meter_per_second_squared>(0.0),
+                WGS84::gravity_down(lat, alt),
+            ]
+        }
+    }
+}
+
+mod internal {
+    use super::WGS84;
     /// Meridian radius of the Earth R<sub>M</sub> \[m\]
     ///
     /// Reference: [AIDED Navigation - GPS With High Rate Sensors, Jay Farrell](https://books.google.nl/books?id=yNujEvIMszYC&lpg=PP1&pg=PR3#v=onepage&q&f=false) - formula (2.6)  
-    pub fn radius_meridian(lat: f64) -> f64 {
-        let sin_lat_sq = Self::sin_lat_sq(lat);
+    pub(crate) fn radius_meridian(lat: f64) -> f64 {
+        let sin_lat_sq = sin_lat_sq(lat);
         WGS84::A * (1.0_f64 - WGS84::E1_SQ) / f64::powf(1.0_f64 - WGS84::E1_SQ * sin_lat_sq, 1.5)
     }
 
     /// Normal radius of the Earth R<sub>N</sub> \[m\]
     ///
     /// Reference: [AIDED Navigation - GPS With High Rate Sensors, Jay Farrell](https://books.google.nl/books?id=yNujEvIMszYC&lpg=PP1&pg=PR3#v=onepage&q&f=false) - formula (2.7)
-    pub fn radius_normal(lat: f64) -> f64 {
-        let sin_lat_sq = Self::sin_lat_sq(lat);
+    pub(crate) fn radius_normal(lat: f64) -> f64 {
+        let sin_lat_sq = sin_lat_sq(lat);
         WGS84::A / f64::powf(1.0 - WGS84::E1_SQ * sin_lat_sq, 0.5)
     }
 
@@ -77,57 +204,48 @@ impl WGS84 {
     ///
     /// Truncated Taylor series of the original formulation is used as described [here](https://ahrs.readthedocs.io/en/latest/wgs84.html#ahrs.utils.wgs84.international_gravity)
     /// since for the case of the International Ellipsoid, the third-order terms are negligible.
-    pub fn gravity_down(lat: f64, alt: f64) -> f64 {
-        let gravity_normal_surface = Self::gravity_surface(lat);
+    pub(crate) fn gravity_down(lat: f64, alt: f64) -> f64 {
+        let gravity_normal_surface = gravity_surface(lat);
         let k1 = 2.0 * (1.0 + WGS84::F + WGS84::M_EARTH) / WGS84::A;
         let k2 = 4.0 * WGS84::F / WGS84::A;
         let k3 = 3.0 / (WGS84::A * WGS84::A);
 
-        let sin_lat_sq = Self::sin_lat_sq(lat);
+        let sin_lat_sq = sin_lat_sq(lat);
 
         gravity_normal_surface * (1.0 - (k1 - k2 * sin_lat_sq) * alt + k3 * alt * alt)
-    }
-
-    /// Same as `gravity_down`
-    ///
-    /// This is a convenience function to match the naming convention of the AHRS Python package
-    pub fn gravity_normal(lat: f64, alt: f64) -> f64 {
-        Self::gravity_down(lat, alt)
     }
 
     /// Estimation of Normal Gravity component (down component) [m/s<sup>2</sup>] at the surface of the reference ellipsoid based on the Somigliana equation
     ///
     /// Reference: [Theoretical_gravity#Somigliana_equation](https://en.wikipedia.org/wiki/Theoretical_gravity#Somigliana_equation)
-    pub fn gravity_surface(lat: f64) -> f64 {
+    pub(crate) fn gravity_surface(lat: f64) -> f64 {
         const K: f64 = (WGS84::B * WGS84::G_POLE) / (WGS84::A * WGS84::G_EQ) - 1.0;
 
-        let sin_lat_sq = Self::sin_lat_sq(lat);
+        let sin_lat_sq = sin_lat_sq(lat);
         WGS84::G_EQ * (1.0 + K * sin_lat_sq) / f64::sqrt(1.0 - WGS84::E1_SQ * sin_lat_sq)
     }
 
     /// Estimation of North Gravity component [m/s<sup>2</sup>]
     ///
     /// Reference: [Principles of GNSS, Inertial, and Multisensor Integrated Navigation Systems (GNSS Technology and Applications) ](https://books.google.nl/books?id=t94fAgAAQBAJ&printsec=copyrigh) - formula (2.139) and (2.140)
-    pub fn gravity_north(lat: f64, alt: f64) -> f64 {
+    pub(crate) fn gravity_north(lat: f64, alt: f64) -> f64 {
         WGS84::G_NORTH_SCALING * alt * f64::sin(2.0 * lat)
     }
 
     /// Gravity vector in NED representation [m/s<sup>2</sup>] at provided latitude
-    pub fn gravity_ned(lat: f64, alt: f64) -> [f64; 3] {
-        [
-            WGS84::gravity_north(lat, alt),
-            0.0,
-            WGS84::gravity_down(lat, alt),
-        ]
+    #[cfg(not(feature = "units"))]
+    pub(crate) fn gravity_ned(lat: f64, alt: f64) -> [f64; 3] {
+        [gravity_north(lat, alt), 0.0, gravity_down(lat, alt)]
     }
 
     /// Useful quantity sin(lat)^2 used throughout WGS84 formulas
-    fn sin_lat_sq(lat: f64) -> f64 {
+    pub(crate) fn sin_lat_sq(lat: f64) -> f64 {
         let sin_lat = f64::sin(lat);
         sin_lat * sin_lat
     }
 }
 
+#[cfg(not(feature = "units"))]
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -242,14 +360,6 @@ mod tests {
                 c.tol
             );
         }
-    }
-
-    #[test]
-    fn normal_gravity_alias() {
-        assert_eq!(
-            WGS84::gravity_down(45.0_f64.to_radians(), 0.0),
-            WGS84::gravity_normal(45.0_f64.to_radians(), 0.0),
-        );
     }
 
     #[test]
@@ -440,7 +550,7 @@ mod tests {
             },
         ];
 
-        for c in cases {
+        for c in &cases {
             let got = WGS84::radius_normal(c.lat);
             assert!(
                 relative_eq!(got, c.expected, epsilon = c.tol),
@@ -468,6 +578,15 @@ mod tests {
             ned[2],
             WGS84::gravity_down(latitude, elevation),
             epsilon = EPS_SMALL
+        );
+    }
+
+    #[cfg(not(feature = "units"))]
+    #[test]
+    fn normal_gravity_alias() {
+        assert_eq!(
+            WGS84::gravity_down(45.0_f64.to_radians(), 0.0),
+            WGS84::gravity_normal(45.0_f64.to_radians(), 0.0),
         );
     }
 }
