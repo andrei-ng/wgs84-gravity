@@ -11,7 +11,13 @@ keywords.workspace = true
 categories.workspace = true
 readme = "README.md"
 
+[features]
+default = []
+units = ["dep:uom"]
+
+
 [dependencies]
+uom = { version = "0.37", features = ["si", "f64"], optional = true }
 
 [dev-dependencies]
 approx = "0.5"

@@ -15,17 +15,23 @@ env:
   RUST_BACKTRACE: full
 
 jobs:
-  build:
-    name: Build&Test
+  test:
+    name: Test tiny-wgs84
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        features: ["", "units"]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
 
-      - name: Build
-        run: cargo test && cargo build
+      - name: Test
+        run: cargo test -p tiny-wgs84 ${{ matrix.features && '--features ' || '' }}${{ matrix.features }}
 
-  test:
+      - name: Build
+        run: cargo build -p tiny-wgs84 ${{ matrix.features && '--features ' || '' }}${{ matrix.features }}
+
+  coverage:
     name: Coverage
     runs-on: ubuntu-latest
     container:
