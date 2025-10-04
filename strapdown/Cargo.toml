@@ -1,0 +1,23 @@
+[package]
+name = "strapdown-ins"
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+description.workspace = true
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "README.md"
+
+[features]
+
+[dependencies]
+nav-math = { path = "../nav-math" }
+nalgebra = "0.34"
+tiny-wgs84 = { path = "../tiny-wgs84", features = ["units"] }
+uom = { version = "0.37", features = ["si", "f64"] }
+
+[dev-dependencies]
+approx = "0.5"

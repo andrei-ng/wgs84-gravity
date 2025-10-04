@@ -1,11 +1,10 @@
 [workspace]
-members = ["wgs84"]
+members = ["tiny-wgs84", "nav-math", "strapdown", "trajectory-sim"]
+default-members = ["tiny-wgs84", "nav-math", "strapdown", "trajectory-sim"]
 
 exclude = ["target/*"]
-
 resolver = "2"
 
-default-members = ["wgs84"]
 
 [workspace.package]
 version = "0.1.0"
